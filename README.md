@@ -4,6 +4,16 @@
 
 A reusable, file-backed workflow for portrait-transition videos: collect and review sources, prepare matched endpoint portraits, generate an age transition and a handoff, then review and edit the sequence with changing captions.
 
+## See it in action
+
+**Twistzz → karrigan → NiKo · two cycles · four clips · ~18 seconds.** A silent excerpt with changing `Name | Team | Year` captions, exported from an editable ChatCut timeline.
+
+https://github.com/user-attachments/assets/f0110eae-df0d-40de-81ab-23e45dad5bd4
+
+AI-generated transitions, not archival footage. Transient clothing artifacts remain visible; this illustrates the workflow, not a guarantee of artifact-free output. The video is hosted separately, not bundled with the code or covered by its MIT license.
+
+## Overview
+
 The controller runs locally on macOS or Linux. A ComfyUI worker can run on the same machine or on a separately configured SSH host. ChatCut is an optional editing destination. No particular cloud, GPU model, home directory, account, or server is required by the manifest format.
 
 This is a workflow template, not an automatic video-quality guarantee. Source selection, endpoint generation and visual approval still require human judgment. Image/video models, their weights and third-party editor integrations are separate dependencies.
@@ -17,7 +27,7 @@ This is a workflow template, not an automatic video-quality guarantee. Source se
 - Caption events, SRT generation, local preview assembly and visual QA contact sheets.
 - A portable editing handoff specification for ChatCut or another editor.
 
-Private photos, historical production jobs, generated media, cloud provisioning settings and authentication material are not included. There is no bundled authenticated image downloader or ChatCut automation client.
+Private photos, historical production jobs, generated media, cloud provisioning settings and authentication material are not included in the source checkout. The public demo above is an external attachment. There is no bundled authenticated image downloader or ChatCut automation client.
 
 ## Quick start
 

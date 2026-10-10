@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "path": "README.md",
+      "category": "public-demo-attachment",
+      "sha256": "78be520db513a4c5a9ae2fccd96634bdcc55efec1b569d50fc4d90ee55679738",
+      "reason": "User requested a public two-cycle README demo; exported excerpt, captions, silent audio and metadata reviewed. Source photos and production records remain private."
+    },
+    {
+      "path": "README.zh-CN.md",
+      "category": "public-demo-attachment",
+      "sha256": "78be520db513a4c5a9ae2fccd96634bdcc55efec1b569d50fc4d90ee55679738",
+      "reason": "Same user-approved two-cycle public demo in the Chinese README; no source photos, operational configuration or production identifiers are published."
+    }
+  ]
+}

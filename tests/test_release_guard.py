@@ -22,6 +22,21 @@ def private_ip() -> str:
     return ".".join(map(str, (10, 11, 12, 13)))
 
 
+def demo_attachment() -> str:
+    identifier = "-".join(("12345678", "1234", "4234", "8234", "123456789abc"))
+    return "https://github.com/user-attachments/assets/" + identifier
+
+
+def demo_allowlist(text: str, path: str = "README.md") -> set[tuple[str, str, str]]:
+    item = {
+        "path": path,
+        "category": "public-demo-attachment",
+        "sha256": hashlib.sha256(text.encode()).hexdigest(),
+        "reason": "Explicitly approved public demonstration attachment.",
+    }
+    return guard.parse_allowlist(json.dumps({"version": 1, "entries": [item]}).encode())
+
+
 class ReleaseContentTests(unittest.TestCase):
     def categories(self, text: str) -> set[str]:
         return {finding.category for finding in guard.scan([entry(text)])}
@@ -101,6 +116,66 @@ class ReleaseContentTests(unittest.TestCase):
         self.assertTrue(guard.scan([guard.Entry("examples/real.png", "100644", png)], allowed))
         big = guard.Entry(image.path, "100644", png + b"x" * guard.MAX_SYNTHETIC_PNG_BYTES)
         self.assertTrue(guard.scan([big], allowed))
+
+    def test_public_demo_attachment_requires_exact_readme_and_line_hash(self):
+        url = demo_attachment()
+        for path in ("README.md", "README.zh-CN.md"):
+            with self.subTest(path=path):
+                self.assertIn("production-identifier", {f.category for f in guard.scan([entry(url, path)])})
+                allowed = demo_allowlist(url, path)
+                self.assertEqual([], guard.scan([entry(url, path)], allowed))
+                self.assertEqual([], guard.scan([entry("# Demo\n\n" + url + "\n", path)], allowed))
+                self.assertTrue(guard.scan([entry(url[:-1] + "d", path)], allowed))
+                other = "README.zh-CN.md" if path == "README.md" else "README.md"
+                self.assertTrue(guard.scan([entry(url, other)], allowed))
+
+    def test_public_demo_attachment_cannot_expand_to_other_paths(self):
+        url = demo_attachment()
+        for path in ("docs/demo.md", "README.fr.md", "docs/README.md", "examples/video.mp4"):
+            with self.subTest(path=path):
+                with self.assertRaises(ValueError):
+                    demo_allowlist(url, path)
+                # Even a direct scan caller cannot bypass the path boundary.
+                allowed = {(path, "public-demo-attachment", hashlib.sha256(url.encode()).hexdigest())}
+                self.assertTrue(guard.scan([entry(url, path)], allowed))
+
+    def test_public_demo_attachment_rejects_unsafe_url_and_line_shapes(self):
+        url = demo_attachment()
+        candidates = (
+            " " + url, url + " ", url + "?download=1", url + "#video",
+            url + "/", url + ".mp4", "[Demo](" + url + ")", "<" + url + ">",
+            "Demo: " + url, url + " " + url.rsplit("/", 1)[1],
+            url.replace("https://", "http://"),
+            url.replace("github.com/", "github.com.example.org/"),
+            url.replace("github.com/", "github.com:443/"),
+            url.replace("github.com/", "user:password@github.com/"),
+            url.replace("/assets/", "/other/"),
+            json.dumps({"project_id": url.rsplit("/", 1)[1]}),
+        )
+        for candidate in candidates:
+            with self.subTest(candidate=candidate):
+                allowed = demo_allowlist(candidate)
+                self.assertIn("production-identifier", {f.category for f in guard.scan([entry(candidate, "README.md")], allowed)})
+
+    def test_public_demo_attachment_does_not_hide_secrets_or_other_ids(self):
+        url = demo_attachment()
+        secret = "ghp_" + "q" * 30
+        extra_id = url.rsplit("/", 1)[1]
+        content = url + "\n" + secret + "\n" + extra_id
+        categories = {f.category for f in guard.scan([entry(content, "README.md")], demo_allowlist(url))}
+        self.assertEqual({"credential", "production-identifier"}, categories)
+        same_line = url + " " + secret
+        categories = {f.category for f in guard.scan([entry(same_line, "README.md")], demo_allowlist(same_line))}
+        self.assertEqual({"credential", "production-identifier"}, categories)
+        media = entry(url, "examples/demo.mp4")
+        self.assertIn("media-model-or-archive", {f.category for f in guard.scan([media], demo_allowlist(url))})
+        item = {
+            "path": "README.md", "category": "production-identifier",
+            "sha256": hashlib.sha256(extra_id.encode()).hexdigest(),
+            "reason": "Arbitrary production identifiers must remain forbidden.",
+        }
+        with self.assertRaises(ValueError):
+            guard.parse_allowlist(json.dumps({"version": 1, "entries": [item]}).encode())
 
     def test_symlink_must_resolve_to_an_included_in_tree_file(self):
         destination = entry("safe", "docs/destination.md")

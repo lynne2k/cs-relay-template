@@ -11,6 +11,9 @@ Optional JSON allowlist: {"version": 1, "entries": [{"path": "exact/path",
 categories below may be exempted. For a small synthetic PNG, use category
 "synthetic-image" and the hash of the complete file, under examples/synthetic/
 or tests/fixtures/synthetic/. Entries cannot exempt credentials or private keys.
+For a user-approved external demo, "public-demo-attachment" exempts only an
+exact GitHub attachment URL line in README.md or README.zh-CN.md, bound to the
+SHA-256 of that line. It never exempts media files or other identifiers.
 The allowlist itself must be staged when scanning a Git repository.
 """
 
@@ -42,7 +45,12 @@ FORBIDDEN_EXTENSIONS = {
     ".zip", ".tar", ".gz", ".7z", ".db", ".sqlite", ".sqlite3", ".pem", ".key",
 }
 RUNTIME_COMPONENTS = {"__pycache__", ".ssh", ".aws", "node_modules", ".venv", ".cache", "browser-profile"}
-EXEMPTIBLE = {"private-network-address", "local-identity-path", "synthetic-image"}
+EXEMPTIBLE = {"private-network-address", "local-identity-path", "synthetic-image", "public-demo-attachment"}
+PUBLIC_DEMO_READMES = {"README.md", "README.zh-CN.md"}
+PUBLIC_DEMO_ATTACHMENT = re.compile(
+    r"https://github\.com/user-attachments/assets/"
+    r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+)
 PLACEHOLDER = re.compile(r"^(?:|replace[-_]me|example(?:[-_].*)?|your[-_].*|changeme|placeholder|demo(?:[-_].*)?|<[^>]+>|\$\{[^}]+\}|\*+|localhost|127\.0\.0\.1|::1)$", re.I)
 IPV4 = re.compile(r"(?<![\w.])(?:\d{1,3}\.){3}\d{1,3}(?![\w.])")
 IPV6 = re.compile(r"(?<![\w:])(?:[0-9a-fA-F]{0,4}:){2,}[0-9a-fA-F:.]*(?![\w:])")
@@ -143,6 +151,8 @@ def parse_allowlist(data: bytes) -> set[tuple[str, str, str]]:
         if not all(isinstance(v, str) for v in (path, category, digest, reason)):
             raise ValueError("invalid-allowlist")
         if not publishable(path) or any(c in path for c in "*?[") or category not in EXEMPTIBLE or not re.fullmatch(r"[a-f0-9]{64}", digest) or len(reason.strip()) < 10:
+            raise ValueError("invalid-allowlist")
+        if category == "public-demo-attachment" and path not in PUBLIC_DEMO_READMES:
             raise ValueError("invalid-allowlist")
         entries.add((path, category, digest))
     return entries
@@ -274,6 +284,13 @@ def scan(entries: list[Entry], allowlist: set[tuple[str, str, str]] | None = Non
                 flag("oversize-line", number)
                 continue
             for category in text_categories(line):
+                if (
+                    category == "production-identifier"
+                    and entry.path in PUBLIC_DEMO_READMES
+                    and PUBLIC_DEMO_ATTACHMENT.fullmatch(line)
+                    and (entry.path, "public-demo-attachment", hashlib.sha256(line.encode()).hexdigest()) in allowlist
+                ):
+                    continue
                 flag(category, number, line.encode())
     return sorted(findings, key=lambda finding: (finding.path, finding.line, finding.category))
 
