@@ -23,6 +23,7 @@ https://github.com/user-attachments/assets/f0110eae-df0d-40de-81ab-23e45dad5bd4
 - 原图与生成端点的登记、哈希、来源和审核记录。
 - 职业选手“战队＋年份”及主播“Past/Present”两套素材规则。
 - 年龄转变＋人物交接的双段周期，以及最后一个人的半周期。
+- 两份可导入 ComfyUI 的可视化工作流：脱衣今昔变化、人物交接。
 - 提示词模板、任务打包、可配置的 SSH 传输与结果登记。
 - 字幕事件、SRT、本地预览拼接、画面检查联系表。
 - 可移植的 ChatCut／其他编辑器交接规范。
@@ -30,6 +31,8 @@ https://github.com/user-attachments/assets/f0110eae-df0d-40de-81ab-23e45dad5bd4
 代码仓库不包含真实选手照片、生产历史、生成视频、云实例配置或认证材料；上方公开演示通过独立附件展示。仓库也没有内置登录态抓图工具及 ChatCut 自动化客户端。
 
 ## 开始使用
+
+**只想先用 ComfyUI 画布？** 下载[脱衣今昔变化 JSON](templates/comfyui/age_transition_shirt_removal_v2.json)和[人物交接 JSON](templates/comfyui/player_handoff_v2.json)，按[导入与模型配置指南](docs/comfyui.md)准备权重、替换首尾图即可开始操作。它们生成的是视频，不包含端点生图。下面的命令行说明用于可选的任务清单控制器。
 
 需要 Python 3.10 或以上版本。通过系统包管理器安装 FFmpeg 和 ffprobe；使用 SSH 传输时还需要 `ssh`、`rsync`。可选的 `qa` 依赖用于画面检查脚本。
 
@@ -82,6 +85,7 @@ python scripts/cs_relay.py package jobs/example-relay
 
 ## 进一步阅读
 
+- [ComfyUI 工作流、模型下载与导入说明](docs/comfyui.md)
 - [制作流程](docs/workflow.md)
 - [配置与可替换工作机](docs/configuration.md)
 - [可复用人物资产](docs/assets.md)

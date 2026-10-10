@@ -50,6 +50,11 @@ class WorkerTests(unittest.TestCase):
         self.assertEqual(segment["first_frame"], "cs_relay_jobs/demo/payload/first.png")
         graph = worker.api_payload("demo", segment)["prompt"]
         self.assertEqual(graph["8"]["inputs"]["last_frame"], ["2", 0])
+        self.assertEqual(graph["16"]["inputs"]["codec"], "none")
+        self.assertEqual(graph["17"]["inputs"]["format"], "mp4")
+        self.assertEqual(graph["17"]["inputs"]["format.codec"], "h264")
+        self.assertEqual(graph["17"]["inputs"]["format.codec.encoding"], "auto")
+        self.assertNotIn("codec", graph["17"]["inputs"])
         self.assertNotIn(str(self.root), json.dumps(graph))
 
     def test_reject_outside_payload_and_symlink(self):

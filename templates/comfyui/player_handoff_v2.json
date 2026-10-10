@@ -1,0 +1,920 @@
+{
+  "last_node_id": 17,
+  "last_link_id": 20,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        330,
+        360
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "subject_a_past.png",
+        "image"
+      ],
+      "title": "FIRST - subject_a_past.png"
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        40,
+        530
+      ],
+      "size": [
+        330,
+        360
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "subject_b_present.png",
+        "image"
+      ],
+      "title": "LAST - subject_b_present.png"
+    },
+    {
+      "id": 3,
+      "type": "UNETLoader",
+      "pos": [
+        440,
+        100
+      ],
+      "size": [
+        370,
+        100
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        440,
+        270
+      ],
+      "size": [
+        370,
+        130
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            6,
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors",
+        1.0
+      ]
+    },
+    {
+      "id": 5,
+      "type": "CLIPLoader",
+      "pos": [
+        440,
+        470
+      ],
+      "size": [
+        370,
+        130
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "VAELoader",
+      "pos": [
+        440,
+        670
+      ],
+      "size": [
+        370,
+        90
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            3,
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_fp16.safetensors"
+      ],
+      "title": "Video VAE"
+    },
+    {
+      "id": 7,
+      "type": "VAELoader",
+      "pos": [
+        440,
+        830
+      ],
+      "size": [
+        370,
+        90
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "title": "Audio VAE"
+    },
+    {
+      "id": 8,
+      "type": "MiniMaxH3ImageToVideo",
+      "pos": [
+        880,
+        100
+      ],
+      "size": [
+        490,
+        820
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 2
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 3
+        },
+        {
+          "name": "first_frame",
+          "type": "IMAGE",
+          "link": 4,
+          "shape": 7
+        },
+        {
+          "name": "last_frame",
+          "type": "IMAGE",
+          "link": 5,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            8
+          ]
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3ImageToVideo"
+      },
+      "widgets_values": [
+        "Create one continuous spatial handoff shot connecting the supplied first and last frames. The person in the first frame is SUBJECT A and the person in the last frame is SUBJECT B. They are two different real people who coexist briefly in the same physical studio; neither person transforms into the other. Use each reference frame as the exact identity and wardrobe definition for its subject. Preserve each subject's recognizable face, facial proportions, hairstyle, skin tone, body proportions, and exact garment design, colors, fabric patterns, and logos. Never transfer facial or wardrobe features between them. Whenever a face is visible, keep the eye region and every facial detail exactly as shown in that subject's reference; add nothing to and remove nothing from the face.\n\nThe scene is one seamless portrait studio with a fixed eye-level camera height, consistent close portrait scale, soft even frontal lighting, unchanged exposure and white balance, and a continuous background. The transition is produced only by one smooth rightward lateral camera move. It is not a morph, face swap, dissolve, crossfade, wipe, cut, or magical replacement. Subject A physically remains on the left side of the studio while Subject B physically occupies the right side.\n\nTimeline (4 seconds):\n[0.0s-0.75s] Hold the exact supplied first-frame composition. SUBJECT A is centered and looks directly into the camera. SUBJECT B is still outside the frame to screen-right.\n[0.75s-1.45s] SUBJECT A first moves only the eyes toward screen-right, then naturally turns the head toward screen-right, anticipating SUBJECT B. The torso, identity, face, hairstyle, and clothing remain unchanged. The camera is still stationary.\n[1.45s-2.75s] The camera performs one smooth constant-speed lateral truck/pan toward screen-right without zooming, tilting, rolling, or changing height. Because of this physical camera motion, SUBJECT A slides toward the left edge while SUBJECT B enters naturally from the right edge as a separate complete person. For a brief clear beat, both subjects are simultaneously visible with two separate heads and bodies. They make natural eye contact with each other. Do not overlap, merge, or occlude their faces.\n[2.75s-3.5s] Continue the same rightward camera move. SUBJECT A exits completely and cleanly through the left edge. SUBJECT B moves from screen-right to center only through the camera's lateral reframing, then moves the eyes from screen-left toward the camera and naturally turns the head to make direct eye contact.\n[3.5s-4.0s] The camera comes to a smooth stop. Hold the exact supplied last-frame composition: SUBJECT B alone, centered, facing forward, and looking directly into the camera. SUBJECT A is fully outside the frame.\n\nRequired continuity: maintain two stable and distinct identities throughout the overlap. SUBJECT A must match only the first reference; SUBJECT B must match only the last reference. Keep each subject's own clothing and logos rigidly associated with that subject. Keep the background geometry, floor direction, light direction, shadows, portrait scale, and camera height continuous during the lateral move. Motion must read as the camera traveling through one room, not as the background sliding behind a stationary morph. End exactly on the supplied last frame.\n\nForbidden failure modes: one face morphing into the other; blended facial features; identity leakage; hairstyle exchange; clothing or logo exchange; garment recoloring; body fusion; overlapping heads; duplicated subjects; extra people; a third person; partial floating face or body; sudden pop-in or disappearance; crossfade; dissolve; wipe; scene cut; teleportation; age change; wardrobe change; shirt removal; camera zoom; dolly-in; dolly-out; tilt; roll; vertical camera movement; warped background; lighting change; exposure flicker; deformed eyes, hands, arms, or logos. Audio is quiet room tone only, with no speech and no music.",
+        544,
+        736,
+        107
+      ],
+      "title": "Subject A to Subject B - camera handoff"
+    },
+    {
+      "id": 9,
+      "type": "RandomNoise",
+      "pos": [
+        1440,
+        100
+      ],
+      "size": [
+        270,
+        110
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        1,
+        "fixed"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "KSamplerSelect",
+      "pos": [
+        1440,
+        280
+      ],
+      "size": [
+        270,
+        80
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "widgets_values": [
+        "res_multistep"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "BasicScheduler",
+      "pos": [
+        1440,
+        430
+      ],
+      "size": [
+        270,
+        150
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler"
+      },
+      "widgets_values": [
+        "simple",
+        4,
+        1.0
+      ]
+    },
+    {
+      "id": 12,
+      "type": "BasicGuider",
+      "pos": [
+        1440,
+        680
+      ],
+      "size": [
+        270,
+        90
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 7
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 13,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        1800,
+        370
+      ],
+      "size": [
+        300,
+        200
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 9
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 10
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 11
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 12
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            14,
+            16
+          ]
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 14,
+      "type": "VAEDecode",
+      "pos": [
+        2190,
+        240
+      ],
+      "size": [
+        240,
+        90
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 14
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 15,
+      "type": "VAEDecodeAudio",
+      "pos": [
+        2190,
+        550
+      ],
+      "size": [
+        240,
+        90
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 16
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecodeAudio"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 16,
+      "type": "CreateVideo",
+      "pos": [
+        2520,
+        370
+      ],
+      "size": [
+        280,
+        190
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 18
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 19,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        24,
+        8,
+        "sRGB",
+        "none"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "SaveVideo",
+      "pos": [
+        2890,
+        220
+      ],
+      "size": [
+        370,
+        440
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "cs_relay_jobs/demo/segments/02-handoff",
+        "mp4",
+        "h264",
+        "auto"
+      ],
+      "title": "Save MP4 / H.264 (ComfyUI output folder)"
+    }
+  ],
+  "links": [
+    [
+      1,
+      3,
+      0,
+      4,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      5,
+      0,
+      8,
+      0,
+      "CLIP"
+    ],
+    [
+      3,
+      6,
+      0,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      4,
+      1,
+      0,
+      8,
+      2,
+      "IMAGE"
+    ],
+    [
+      5,
+      2,
+      0,
+      8,
+      3,
+      "IMAGE"
+    ],
+    [
+      6,
+      4,
+      0,
+      11,
+      0,
+      "MODEL"
+    ],
+    [
+      7,
+      4,
+      0,
+      12,
+      0,
+      "MODEL"
+    ],
+    [
+      8,
+      8,
+      0,
+      12,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      9,
+      9,
+      0,
+      13,
+      0,
+      "NOISE"
+    ],
+    [
+      10,
+      12,
+      0,
+      13,
+      1,
+      "GUIDER"
+    ],
+    [
+      11,
+      10,
+      0,
+      13,
+      2,
+      "SAMPLER"
+    ],
+    [
+      12,
+      11,
+      0,
+      13,
+      3,
+      "SIGMAS"
+    ],
+    [
+      13,
+      8,
+      1,
+      13,
+      4,
+      "LATENT"
+    ],
+    [
+      14,
+      13,
+      0,
+      14,
+      0,
+      "LATENT"
+    ],
+    [
+      15,
+      6,
+      0,
+      14,
+      1,
+      "VAE"
+    ],
+    [
+      16,
+      13,
+      0,
+      15,
+      0,
+      "LATENT"
+    ],
+    [
+      17,
+      7,
+      0,
+      15,
+      1,
+      "VAE"
+    ],
+    [
+      18,
+      14,
+      0,
+      16,
+      0,
+      "IMAGE"
+    ],
+    [
+      19,
+      15,
+      0,
+      16,
+      1,
+      "AUDIO"
+    ],
+    [
+      20,
+      16,
+      0,
+      17,
+      0,
+      "VIDEO"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "1. Upload matching 544 x 736 PNG endpoints",
+      "bounding": [
+        10,
+        20,
+        390,
+        950
+      ],
+      "color": "#456579",
+      "font_size": 22
+    },
+    {
+      "title": "2. Select your local H3 model files",
+      "bounding": [
+        410,
+        20,
+        430,
+        950
+      ],
+      "color": "#456579",
+      "font_size": 22
+    },
+    {
+      "title": "3. Prompt + 107 frames at 24 fps",
+      "bounding": [
+        850,
+        20,
+        550,
+        950
+      ],
+      "color": "#5b6553",
+      "font_size": 22
+    },
+    {
+      "title": "4. Four-step sampling",
+      "bounding": [
+        1410,
+        20,
+        730,
+        950
+      ],
+      "color": "#5b6553",
+      "font_size": 22
+    },
+    {
+      "title": "5. Decode and save video + audio",
+      "bounding": [
+        2160,
+        20,
+        1140,
+        950
+      ],
+      "color": "#675477",
+      "font_size": 22
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.48,
+      "offset": [
+        40,
+        70
+      ]
+    },
+    "cs_relay": {
+      "preset": "player_handoff_v2",
+      "comfyui_version": "0.39.2",
+      "comfyui_revision": "3c1b7a17fdf239d35ce98cc777756f572d089795",
+      "note": "Upload your own reviewed endpoints. Same prepared Past PNG must be shared across the two workflows. See docs/comfyui.md."
+    }
+  },
+  "version": 0.4
+}

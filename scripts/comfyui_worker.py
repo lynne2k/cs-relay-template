@@ -287,8 +287,9 @@ def api_payload(job_id: str, segment: dict[str, Any]) -> dict[str, Any]:
         "13": node("SamplerCustomAdvanced", noise=["9", 0], guider=["12", 0], sampler=["10", 0], sigmas=["11", 0], latent_image=["8", 1]),
         "14": node("VAEDecode", samples=["13", 0], vae=["6", 0]),
         "15": node("VAEDecodeAudio", samples=["13", 0], vae=["7", 0]),
-        "16": node("CreateVideo", images=["14", 0], audio=["15", 0], fps=segment["fps"], bit_depth=8, color_space="sRGB"),
-        "17": node("SaveVideo", video=["16", 0], filename_prefix=f"{RESULTS_SUBDIR.as_posix()}/{job_id}/segments/{segment['segment_id']}", format="mp4", codec="h264"),
+        "16": node("CreateVideo", images=["14", 0], audio=["15", 0], fps=segment["fps"], bit_depth=8, color_space="sRGB", codec="none"),
+        # ComfyUI v0.39.2 DynamicCombo API inputs use flattened dotted keys.
+        "17": node("SaveVideo", video=["16", 0], filename_prefix=f"{RESULTS_SUBDIR.as_posix()}/{job_id}/segments/{segment['segment_id']}", format="mp4", **{"format.codec": "h264", "format.codec.encoding": "auto"}),
     }
     return {"prompt": graph, "client_id": f"cs-relay:{job_id}"}
 

@@ -1,0 +1,920 @@
+{
+  "last_node_id": 17,
+  "last_link_id": 20,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        330,
+        360
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            4
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "subject_a_present.png",
+        "image"
+      ],
+      "title": "FIRST - subject_a_present.png"
+    },
+    {
+      "id": 2,
+      "type": "LoadImage",
+      "pos": [
+        40,
+        530
+      ],
+      "size": [
+        330,
+        360
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            5
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "subject_a_past.png",
+        "image"
+      ],
+      "title": "LAST - subject_a_past.png"
+    },
+    {
+      "id": 3,
+      "type": "UNETLoader",
+      "pos": [
+        440,
+        100
+      ],
+      "size": [
+        370,
+        100
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        440,
+        270
+      ],
+      "size": [
+        370,
+        130
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            6,
+            7
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "widgets_values": [
+        "minimax_h3_fl2v_turbo_4step_v1.0_768p_comfyui_bf16.safetensors",
+        1.0
+      ]
+    },
+    {
+      "id": 5,
+      "type": "CLIPLoader",
+      "pos": [
+        440,
+        470
+      ],
+      "size": [
+        370,
+        130
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+        "minimax",
+        "default"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "VAELoader",
+      "pos": [
+        440,
+        670
+      ],
+      "size": [
+        370,
+        90
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            3,
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_video_vae_fp16.safetensors"
+      ],
+      "title": "Video VAE"
+    },
+    {
+      "id": 7,
+      "type": "VAELoader",
+      "pos": [
+        440,
+        830
+      ],
+      "size": [
+        370,
+        90
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "minimax_h3_audio_vae_fp32.safetensors"
+      ],
+      "title": "Audio VAE"
+    },
+    {
+      "id": 8,
+      "type": "MiniMaxH3ImageToVideo",
+      "pos": [
+        880,
+        100
+      ],
+      "size": [
+        490,
+        820
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 2
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 3
+        },
+        {
+          "name": "first_frame",
+          "type": "IMAGE",
+          "link": 4,
+          "shape": 7
+        },
+        {
+          "name": "last_frame",
+          "type": "IMAGE",
+          "link": 5,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": [
+            8
+          ]
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiniMaxH3ImageToVideo"
+      },
+      "widgets_values": [
+        "Create one continuous, physically realistic overhead shirt-removal shot that connects the supplied first and last frames. Treat the person visible in both reference frames as the same subject at two ages or life stages. Preserve the subject's recognizable identity, facial structure, skin tone, body proportions, camera position, framing, background, exposure, white balance, and lighting. Use the exact garment designs, colors, fabric patterns, logos, and facial appearance shown by the supplied reference frames; do not invent or rename them.\n\nCritical physical setup: before frame 1, the subject has already put on two complete, independent, opaque shirts, one over the other. The shirt visible in the first frame is a loose OUTER shirt. The shirt visible in the last frame is a fitted INNER shirt already worn underneath from the very beginning, including while most of it is hidden. The inner shirt is a normal full-length jersey, never a crop top: its fabric extends continuously from the collar past the chest, navel, waist, and lower edge of the visible frame. Its bottom hem remains below the camera crop at all times and can never be seen moving upward. It stays down, taut, and anchored around the hips while continuously covering the entire torso. Only the outer shirt is removed. The two hands grip only the bottom hem of the outer shirt and never catch, pinch, stretch, roll, or lift the inner shirt. As soon as the outer hem rises, the exact inner-shirt fabric from the last frame must be visible directly underneath—never bare skin and never an intermediate garment.\n\nTimeline (4 seconds):\n[0.0s-0.45s] Hold the supplied first-frame composition. The subject is centered, chest-up, looking into the camera and already wearing both complete shirts as two physical layers: first-frame shirt outside, last-frame shirt inside.\n[0.45s-1.35s] The subject moves both hands to the left and right sides of the bottom hem of only the outer shirt, pinches that hem, and begins lifting it. A large uninterrupted area of the pre-existing full-length inner shirt is immediately revealed under the rising hem and remains flat against the abdomen, navel area, chest, and waist. The inner shirt continues below the bottom of the frame. No torso skin enters the image.\n[1.35s-2.65s] In one natural, continuous overhead removal action, the subject pulls the separate outer shirt upward while the full-length inner shirt stays fixed down on the torso, anchored below the frame. The outer cloth bunches in the hands, passes in front of the chest and mouth, and becomes one broad opaque cloth occluder that completely covers the face, eyes, eyebrows, and hair for a sustained beat. Change from the first-frame age to the last-frame age only while every facial feature is fully hidden behind the outer cloth.\n[2.65s-3.35s] The same outer shirt clears the head as one intact, separate garment still held by both hands and exits above the frame. It never dissolves or turns into the inner shirt. The subject at the last-frame age is revealed already wearing the exact same intact inner shirt that remained on the torso throughout. The arms lower naturally.\n[3.35s-4.0s] Hold the exact supplied last-frame portrait with direct eye contact. Whenever the face is visible, keep the eye region and every facial detail exactly as shown in the corresponding reference; add nothing to and remove nothing from the face.\n\nRequired continuity: one subject, one body, two independent opaque cloth layers, and one ordinary overhead shirt-removal action. In every frame, every visible torso pixel is covered by either the outer shirt or the full-length inner shirt. Preserve each garment's design and logos as part of its own continuous piece of fabric. Keep the inner collar, sleeves, torso, and logos attached to the body and spatially stable; keep its waist section stretched downward beyond the bottom image boundary. The inner shirt's lower edge must never enter the frame. Keep the outer garment visibly separate in the hands as it leaves. Before full occlusion, the face matches the first frame; after full occlusion, the face matches the last frame.\n\nForbidden failure modes: any exposed stomach, navel, abdomen, waist, chest, shoulders, or back; any horizontal strip of torso skin; bare skin between layers; a bra, crop top, cropped jersey, rolled-up inner shirt, belly shirt, translucent layer, undershirt, or third garment not shown in the references; a visible inner-shirt bottom hem; lifting or rolling both shirts together; the inner shirt shortening, bunching, folding upward, or rising with the hands; either shirt recoloring into the other; the inner shirt materializing, growing, fading in, printing itself onto skin, or morphing out of the outer shirt; fused garments; melting or drifting logos; double exposure; dissolve; crossfade; magical wardrobe change; mask peeling; visible face or age morph before complete facial occlusion; identity replacement; distorted eyes or eyebrows; extra fingers, hands, arms, heads, or bodies. No camera movement, zoom, crop change, head turn, background change, lighting change, speech, or music. End exactly on the supplied last frame. Audio is quiet room tone with subtle realistic cloth rustle only.",
+        544,
+        736,
+        107
+      ],
+      "title": "Present to Past - overhead shirt removal"
+    },
+    {
+      "id": 9,
+      "type": "RandomNoise",
+      "pos": [
+        1440,
+        100
+      ],
+      "size": [
+        270,
+        110
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            9
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        1,
+        "fixed"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "KSamplerSelect",
+      "pos": [
+        1440,
+        280
+      ],
+      "size": [
+        270,
+        80
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "widgets_values": [
+        "res_multistep"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "BasicScheduler",
+      "pos": [
+        1440,
+        430
+      ],
+      "size": [
+        270,
+        150
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 6
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler"
+      },
+      "widgets_values": [
+        "simple",
+        4,
+        1.0
+      ]
+    },
+    {
+      "id": 12,
+      "type": "BasicGuider",
+      "pos": [
+        1440,
+        680
+      ],
+      "size": [
+        270,
+        90
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 7
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 13,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        1800,
+        370
+      ],
+      "size": [
+        300,
+        200
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 9
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 10
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 11
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 12
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            14,
+            16
+          ]
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 14,
+      "type": "VAEDecode",
+      "pos": [
+        2190,
+        240
+      ],
+      "size": [
+        240,
+        90
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 14
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 15,
+      "type": "VAEDecodeAudio",
+      "pos": [
+        2190,
+        550
+      ],
+      "size": [
+        240,
+        90
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 16
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            19
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecodeAudio"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 16,
+      "type": "CreateVideo",
+      "pos": [
+        2520,
+        370
+      ],
+      "size": [
+        280,
+        190
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 18
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 19,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            20
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        24,
+        8,
+        "sRGB",
+        "none"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "SaveVideo",
+      "pos": [
+        2890,
+        220
+      ],
+      "size": [
+        370,
+        440
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveVideo"
+      },
+      "widgets_values": [
+        "cs_relay_jobs/demo/segments/01-age",
+        "mp4",
+        "h264",
+        "auto"
+      ],
+      "title": "Save MP4 / H.264 (ComfyUI output folder)"
+    }
+  ],
+  "links": [
+    [
+      1,
+      3,
+      0,
+      4,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      5,
+      0,
+      8,
+      0,
+      "CLIP"
+    ],
+    [
+      3,
+      6,
+      0,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      4,
+      1,
+      0,
+      8,
+      2,
+      "IMAGE"
+    ],
+    [
+      5,
+      2,
+      0,
+      8,
+      3,
+      "IMAGE"
+    ],
+    [
+      6,
+      4,
+      0,
+      11,
+      0,
+      "MODEL"
+    ],
+    [
+      7,
+      4,
+      0,
+      12,
+      0,
+      "MODEL"
+    ],
+    [
+      8,
+      8,
+      0,
+      12,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      9,
+      9,
+      0,
+      13,
+      0,
+      "NOISE"
+    ],
+    [
+      10,
+      12,
+      0,
+      13,
+      1,
+      "GUIDER"
+    ],
+    [
+      11,
+      10,
+      0,
+      13,
+      2,
+      "SAMPLER"
+    ],
+    [
+      12,
+      11,
+      0,
+      13,
+      3,
+      "SIGMAS"
+    ],
+    [
+      13,
+      8,
+      1,
+      13,
+      4,
+      "LATENT"
+    ],
+    [
+      14,
+      13,
+      0,
+      14,
+      0,
+      "LATENT"
+    ],
+    [
+      15,
+      6,
+      0,
+      14,
+      1,
+      "VAE"
+    ],
+    [
+      16,
+      13,
+      0,
+      15,
+      0,
+      "LATENT"
+    ],
+    [
+      17,
+      7,
+      0,
+      15,
+      1,
+      "VAE"
+    ],
+    [
+      18,
+      14,
+      0,
+      16,
+      0,
+      "IMAGE"
+    ],
+    [
+      19,
+      15,
+      0,
+      16,
+      1,
+      "AUDIO"
+    ],
+    [
+      20,
+      16,
+      0,
+      17,
+      0,
+      "VIDEO"
+    ]
+  ],
+  "groups": [
+    {
+      "title": "1. Upload matching 544 x 736 PNG endpoints",
+      "bounding": [
+        10,
+        20,
+        390,
+        950
+      ],
+      "color": "#456579",
+      "font_size": 22
+    },
+    {
+      "title": "2. Select your local H3 model files",
+      "bounding": [
+        410,
+        20,
+        430,
+        950
+      ],
+      "color": "#456579",
+      "font_size": 22
+    },
+    {
+      "title": "3. Prompt + 107 frames at 24 fps",
+      "bounding": [
+        850,
+        20,
+        550,
+        950
+      ],
+      "color": "#5b6553",
+      "font_size": 22
+    },
+    {
+      "title": "4. Four-step sampling",
+      "bounding": [
+        1410,
+        20,
+        730,
+        950
+      ],
+      "color": "#5b6553",
+      "font_size": 22
+    },
+    {
+      "title": "5. Decode and save video + audio",
+      "bounding": [
+        2160,
+        20,
+        1140,
+        950
+      ],
+      "color": "#675477",
+      "font_size": 22
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.48,
+      "offset": [
+        40,
+        70
+      ]
+    },
+    "cs_relay": {
+      "preset": "age_transition_shirt_removal_v2",
+      "comfyui_version": "0.39.2",
+      "comfyui_revision": "3c1b7a17fdf239d35ce98cc777756f572d089795",
+      "note": "Upload your own reviewed endpoints. Same prepared Past PNG must be shared across the two workflows. See docs/comfyui.md."
+    }
+  },
+  "version": 0.4
+}

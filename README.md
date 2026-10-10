@@ -23,6 +23,7 @@ This is a workflow template, not an automatic video-quality guarantee. Source se
 - Source and endpoint registration with hashes, provenance and review records.
 - Separate policies for dated esports portraits and user-provided Past/Present photos.
 - Alternating age/handoff chain planning, with an optional final age-only half-cycle.
+- Two importable ComfyUI visual workflows: shirt-removal age transition and player handoff.
 - Prompt templates, job packaging, configurable SSH transfer and result binding.
 - Caption events, SRT generation, local preview assembly and visual QA contact sheets.
 - A portable editing handoff specification for ChatCut or another editor.
@@ -30,6 +31,8 @@ This is a workflow template, not an automatic video-quality guarantee. Source se
 Private photos, historical production jobs, generated media, cloud provisioning settings and authentication material are not included in the source checkout. The public demo above is an external attachment. There is no bundled authenticated image downloader or ChatCut automation client.
 
 ## Quick start
+
+**Prefer the ComfyUI canvas?** Download the [age-transition JSON](templates/comfyui/age_transition_shirt_removal_v2.json) and [handoff JSON](templates/comfyui/player_handoff_v2.json), then follow the [bilingual import and model setup guide](docs/comfyui.md). These are video-generation graphs for prepared portraits, not portrait-generation graphs. The instructions below are for the optional manifest-based controller.
 
 Use Python 3.10 or later. Install FFmpeg and ffprobe using your operating system's package manager; SSH transfer also requires `ssh` and `rsync`. Optional QA scripts need the `qa` extra.
 
@@ -77,6 +80,7 @@ Shared inputs prevent inconsistent endpoint preparation; they do not guarantee t
 
 ## Documentation
 
+- [ComfyUI workflows, model downloads and import guide](docs/comfyui.md)
 - [Source acquisition, matched endpoints and generation](docs/workflow.md)
 - [Configuration, worker contract and portability](docs/configuration.md)
 - [Reusable asset library](docs/assets.md)
