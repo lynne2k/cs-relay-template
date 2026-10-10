@@ -1,0 +1,12 @@
+{
+  "remote_host": "",
+  "remote_project_root": "",
+  "remote_jobs_root": "input/cs_relay_jobs",
+  "remote_results_root": "output/cs_relay_jobs",
+  "remote_comfyui_url": "http://127.0.0.1:8188",
+  "default_video": {
+    "width": 544,
+    "height": 736,
+    "fps": 24
+  }
+}

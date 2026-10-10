@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cs-relay-template"
+version = "0.1.0"
+description = "File-backed templates for reviewed portrait-transition video workflows"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "CS Relay Template contributors"}]
+dependencies = []
+
+[project.optional-dependencies]
+qa = ["Pillow>=10", "numpy>=1.24", "opencv-python-headless>=4.8"]
+dev = ["jsonschema>=4.18"]
+
+[tool.setuptools]
+packages = []

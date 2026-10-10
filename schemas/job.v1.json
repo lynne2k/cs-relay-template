@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/cs-relay/job.v1.json",
+  "title": "CS Relay portable job manifest",
+  "description": "Structural contract. Runtime validation additionally verifies files, hashes, asset policy, segment relationships and final visual review.",
+  "type": "object",
+  "required": ["schema_version", "job_id", "status", "players", "segments", "asset_policy"],
+  "properties": {
+    "schema_version": {"const": "cs-relay.job.v1"},
+    "job_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "status": {"enum": ["draft", "local_collected", "package_ready", "remote_submitted", "remote_generated", "local_assembled", "validated", "blocked"]},
+    "created_at": {"type": "string"},
+    "updated_at": {"type": "string"},
+    "remote": {
+      "type": "object",
+      "properties": {
+        "adapter": {"type": "string"},
+        "host": {"type": "string"},
+        "project_root": {"type": "string"},
+        "comfyui_url": {"type": "string"}
+      }
+    },
+    "video": {"$ref": "#/$defs/video"},
+    "asset_policy": {
+      "type": "object",
+      "required": ["version", "strict"],
+      "properties": {
+        "version": {"enum": ["hltv-ranking-snapshot-portrait.v3", "user-provided-past-present.v1"]},
+        "strict": {"const": true}
+      }
+    },
+    "players": {"type": "array", "items": {"$ref": "#/$defs/person"}},
+    "segments": {"type": "array", "items": {"$ref": "#/$defs/segment"}},
+    "caption_policy": {
+      "type": "object",
+      "properties": {
+        "format": {"type": "string"},
+        "language": {"type": "string"},
+        "burn_in": {"type": "boolean"},
+        "background": {"type": "string"}
+      }
+    },
+    "visual_review": {
+      "type": "object",
+      "required": ["reviewed", "status", "reviewer", "note", "artifact"],
+      "properties": {
+        "reviewed": {"type": "boolean"},
+        "status": {"enum": ["approved", "pending", "rejected"]},
+        "reviewer": {"type": "string", "minLength": 1},
+        "note": {"type": "string", "minLength": 1},
+        "artifact": {"$ref": "#/$defs/fileRecord"}
+      }
+    },
+    "artifacts": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"asset_policy": {"properties": {"version": {"const": "user-provided-past-present.v1"}}}}},
+      "then": {
+        "properties": {
+          "players": {
+            "items": {
+              "properties": {
+                "states": {
+                  "items": {
+                    "properties": {
+                      "period": {"enum": ["present", "past"]},
+                      "portrait": {"properties": {"provider": {"const": "user"}}},
+                      "endpoint": {
+                        "required": ["layout"],
+                        "properties": {
+                          "layout": {
+                            "type": "object",
+                            "required": ["reference", "reviewed", "note"],
+                            "properties": {
+                              "reference": {"$ref": "#/$defs/fileRecord"},
+                              "reviewed": {"const": true},
+                              "note": {"type": "string", "minLength": 1}
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {"properties": {"asset_policy": {"properties": {"version": {"const": "hltv-ranking-snapshot-portrait.v3"}}}}},
+      "then": {
+        "properties": {
+          "players": {
+            "items": {
+              "properties": {
+                "states": {
+                  "items": {
+                    "required": ["year", "team", "portrait_acquisition"],
+                    "properties": {"period": {"enum": ["current", "peak", "past"]}}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "relativePath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\]+$"
+    },
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "fileRecord": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size": {"type": "integer", "minimum": 0}
+      }
+    },
+    "video": {
+      "type": "object",
+      "required": ["width", "height", "fps"],
+      "properties": {
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1},
+        "fps": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "portrait": {
+      "allOf": [{"$ref": "#/$defs/fileRecord"}],
+      "required": ["provider", "review_status", "review_note"],
+      "properties": {
+        "provider": {"enum": ["hltv", "official_media_day", "user"]},
+        "kind": {"enum": ["hltv_ranking_snapshot_playerbodyshot", "hltv_profile_playerbodyshot", "official_media_day_portrait", "user_provided_portrait"]},
+        "review_status": {"enum": ["approved", "pending", "rejected"]},
+        "review_note": {"type": "string", "minLength": 1},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/fileRecord"}}
+      }
+    },
+    "endpoint": {
+      "allOf": [{"$ref": "#/$defs/fileRecord"}],
+      "required": ["derived_from_portrait_sha256", "review_status", "review_note"],
+      "properties": {
+        "derived_from_portrait_sha256": {"$ref": "#/$defs/sha256"},
+        "review_status": {"enum": ["approved", "pending", "rejected"]},
+        "review_note": {"type": "string", "minLength": 1}
+      }
+    },
+    "person": {
+      "type": "object",
+      "required": ["slug", "states"],
+      "properties": {
+        "slug": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+        "display_name": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "states": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["key", "period", "portrait"],
+            "properties": {
+              "key": {"type": "string", "minLength": 1},
+              "period": {"enum": ["current", "present", "peak", "past"]},
+              "year": {"type": "integer"},
+              "team": {"type": "string", "minLength": 1},
+              "portrait": {"$ref": "#/$defs/portrait"},
+              "endpoint": {"$ref": "#/$defs/endpoint"},
+              "portrait_acquisition": {
+                "type": "object",
+                "required": ["method", "profile_url", "profile_evidence"],
+                "properties": {
+                  "method": {"enum": ["hltv_ranking_snapshot_team_card.v1", "reviewed_reference_override.v1"]},
+                  "profile_url": {"type": "string"},
+                  "profile_evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/fileRecord"}},
+                  "snapshot_url": {"type": "string", "pattern": "^https://www\\.hltv\\.org/ranking/teams/[0-9]{4}/[A-Za-z]+/[0-9]{1,2}/?(?:[?#].*)?$"},
+                  "snapshot_player_count": {"const": 5},
+                  "snapshot_evidence": {"type": "array", "items": {"$ref": "#/$defs/fileRecord"}}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "segment": {
+      "type": "object",
+      "required": ["id", "kind", "first_frame", "last_frame"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["age_transition", "player_handoff", "other"]},
+        "first_frame": {"$ref": "#/$defs/relativePath"},
+        "last_frame": {"$ref": "#/$defs/relativePath"},
+        "prompt": {"type": "string"},
+        "prompt_file": {"$ref": "#/$defs/relativePath"},
+        "seed": {"type": "integer", "minimum": 0},
+        "duration_s": {"type": "number", "exclusiveMinimum": 0},
+        "fps": {"type": "number", "exclusiveMinimum": 0},
+        "video_path": {"$ref": "#/$defs/relativePath"}
+      }
+    }
+  }
+}

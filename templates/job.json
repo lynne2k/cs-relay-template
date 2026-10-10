@@ -1,0 +1,26 @@
+{
+  "schema_version": "cs-relay.job.v1",
+  "job_id": "example-relay",
+  "status": "draft",
+  "created_at": "",
+  "remote": {
+    "adapter": "comfyui-h3",
+    "host": "",
+    "project_root": "",
+    "comfyui_url": "http://127.0.0.1:8188"
+  },
+  "video": {"width": 544, "height": 736, "fps": 24},
+  "players": [],
+  "segments": [],
+  "asset_policy": {
+    "version": "user-provided-past-present.v1",
+    "strict": true
+  },
+  "caption_policy": {
+    "language": "en",
+    "format": "Name | Present/Past",
+    "burn_in": false,
+    "background": "none"
+  },
+  "artifacts": {}
+}

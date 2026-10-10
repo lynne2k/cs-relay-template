@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/cs-relay/chain-plan.v1.json",
+  "title": "CS Relay chain plan",
+  "type": "object",
+  "required": ["seed_base", "fps", "segment_frames", "duration_seconds_requested", "generation_width", "generation_height", "age_prompt_file", "handoff_prompt_file", "nodes"],
+  "properties": {
+    "seed_base": {"type": "integer", "minimum": 0},
+    "fps": {"type": "number", "exclusiveMinimum": 0},
+    "segment_frames": {"type": "integer", "minimum": 1},
+    "duration_seconds_requested": {"type": "number", "exclusiveMinimum": 0},
+    "generation_width": {"type": "integer", "minimum": 1},
+    "generation_height": {"type": "integer", "minimum": 1},
+    "age_prompt_file": {"$ref": "#/$defs/planRelativePath"},
+    "handoff_prompt_file": {"$ref": "#/$defs/planRelativePath"},
+    "terminal_age_transition": {
+      "oneOf": [
+        {"type": "boolean"},
+        {"type": "object", "required": ["enabled"], "properties": {"enabled": {"type": "boolean"}}}
+      ]
+    },
+    "caption_policy": {"type": "object"},
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["player", "current_caption"],
+        "properties": {
+          "player": {"type": "string", "minLength": 1},
+          "current": {"type": "string", "minLength": 1},
+          "past": {"type": "string", "minLength": 1},
+          "current_path": {"$ref": "#/$defs/jobRelativePath"},
+          "past_path": {"$ref": "#/$defs/jobRelativePath"},
+          "current_caption": {"type": "string", "minLength": 1},
+          "past_caption": {"type": "string", "minLength": 1}
+        },
+        "anyOf": [{"required": ["current"]}, {"required": ["current_path"]}]
+      }
+    }
+  },
+  "$defs": {
+    "planRelativePath": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)[^\\\\]+$"},
+    "jobRelativePath": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?![A-Za-z]:)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\\\]+$"}
+  }
+}

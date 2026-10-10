@@ -1,0 +1,38 @@
+name: template-checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Check public release inputs
+        run: python scripts/check_release.py --source index
+      - name: Install QA dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+          python -m pip install -e '.[qa,dev]'
+      - name: Unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Offline synthetic demo
+        run: python scripts/create_demo.py jobs/demo-relay
+      - name: Check generated state is excluded
+        run: |
+          git check-ignore jobs/demo-relay/job.json
+          git diff --exit-code
+          python scripts/check_release.py --source index

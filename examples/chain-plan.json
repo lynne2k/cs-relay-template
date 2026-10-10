@@ -1,0 +1,33 @@
+{
+  "seed_base": 1000,
+  "fps": 24,
+  "segment_frames": 107,
+  "duration_seconds_requested": 4,
+  "generation_width": 544,
+  "generation_height": 736,
+  "age_prompt_file": "../templates/prompts/age_transition_shirt_removal_v2.txt",
+  "handoff_prompt_file": "../templates/prompts/player_handoff_v2.txt",
+  "terminal_age_transition": true,
+  "caption_policy": {
+    "language": "en",
+    "format": "Name | Present/Past",
+    "burn_in": false,
+    "background": "none"
+  },
+  "nodes": [
+    {
+      "player": "example-a",
+      "current": "present",
+      "past": "past",
+      "current_caption": "Example A | Present",
+      "past_caption": "Example A | Past"
+    },
+    {
+      "player": "example-b",
+      "current": "present",
+      "past": "past",
+      "current_caption": "Example B | Present",
+      "past_caption": "Example B | Past"
+    }
+  ]
+}
